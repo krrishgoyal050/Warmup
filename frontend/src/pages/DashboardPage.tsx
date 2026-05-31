@@ -18,7 +18,7 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import { Alert } from '@mui/material';
+import { alert } from '@mui/material';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import MapIcon from '@mui/icons-material/Map';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -138,7 +138,7 @@ export const DashboardPage: React.FC = () => {
           </Button>
         </Box>
 
-        {error && <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>}
+        {error && <alert severity="error" sx={{ mb: 4 }}>{error}</alert>}
 
         {/* TRIPS GRID */}
         {trips.length === 0 ? (
@@ -221,9 +221,9 @@ export const DashboardPage: React.FC = () => {
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
                       <Chip label={trip.travelStyle.toUpperCase()} size="small" color="primary" variant="outlined" sx={{ fontWeight: 600 }} />
                       <Chip label={`${trip.numTravelers} ${trip.numTravelers === 1 ? 'Traveler' : 'Travelers'}`} size="small" variant="outlined" />
-                      {trip.weatherAlerts.length > 0 && (
+                      {trip.weatheralerts.length > 0 && (
                         <Chip 
-                          label={`${trip.weatherAlerts.length} Weather Alert${trip.weatherAlerts.length > 1 ? 's' : ''}`} 
+                          label={`${trip.weatheralerts.length} Weather alert${trip.weatheralerts.length > 1 ? 's' : ''}`} 
                           size="small" 
                           color="error" 
                           icon={<ErrorOutlineIcon />} 
