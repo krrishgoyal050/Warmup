@@ -161,7 +161,7 @@ export const DashboardPage: React.FC = () => {
               Your adventure is waiting! Feed our AI your preferences and get a custom micro-optimized travel experience dynamically mapped instantly.
             </Typography>
             <Button
-              variant="filled"
+              variant="contained"
               size="large"
               onClick={() => navigate('/planner')}
               sx={{ fontWeight: 700 }}
@@ -254,7 +254,7 @@ export const DashboardPage: React.FC = () => {
                   {/* Actions Bar */}
                   <Box sx={{ px: 4, pb: 4, display: 'flex', gap: 1.5 }}>
                     <Button
-                      variant="filled"
+                      variant="contained"
                       fullWidth
                       startIcon={<MapIcon />}
                       onClick={() => navigate(`/map/${trip.id}`)}
@@ -344,7 +344,7 @@ export const DashboardPage: React.FC = () => {
             <Button 
               onClick={handleExecuteReplan} 
               disabled={replanning || !replanReason}
-              variant="filled"
+              variant="contained"
               startIcon={replanning ? <CircularProgress size={16} /> : <CloudSyncIcon />}
             >
               {replanning ? 'Re-Planning...' : 'Execute Re-Plan'}
