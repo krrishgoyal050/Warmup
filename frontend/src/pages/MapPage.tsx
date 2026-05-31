@@ -104,8 +104,6 @@ export const MapPage: React.FC = () => {
 
   const activeDay: ItineraryDay = trip.itinerary[activeDayIdx] || trip.itinerary[0];
   const budget = trip.budgetBreakdown;
-  const _totalAlloc = budget.accommodation + budget.food + budget.transport + budget.activities;
-
   // Colors for Custom Donut Chart
   const colors = ['#6366f1', '#14b8a6', '#f59e0b', '#3b82f6'];
 
