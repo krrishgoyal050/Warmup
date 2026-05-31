@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: travel_planner_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - NODE_ENV=development
+      # Supply API keys here for live execution
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+    volumes:
+      # Persists our mock persistent JSON database between container instances
+      - ./backend/mock_db.json:/usr/src/app/mock_db.json
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: travel_planner_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=development

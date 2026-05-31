@@ -1,0 +1,24 @@
+{
+  "name": "travel-planner-functions",
+  "version": "1.0.0",
+  "description": "Serverless Firebase Cloud Functions for AI Travel Planning & Experience Engine",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^5.0.0",
+    "@google/generative-ai": "^0.11.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
