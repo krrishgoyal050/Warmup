@@ -67,7 +67,7 @@ export const DashboardPage: React.FC = () => {
       await apiClient.delete(`/trips/${id}`);
       setTrips(prev => prev.filter(t => t.id !== id));
     } catch (err: any) {
-      alert(err.message || 'Failed to delete trip.');
+      Alert(err.message || 'Failed to delete trip.');
     }
   };
 
@@ -89,7 +89,7 @@ export const DashboardPage: React.FC = () => {
       setTrips(prev => prev.map(t => t.id === replanTripId ? response.data : t));
       handleCloseReplan();
     } catch (err: any) {
-      alert(err.message || 'Dynamic replanning failed.');
+      Alert(err.message || 'Dynamic replanning failed.');
     } finally {
       setReplanning(false);
     }
