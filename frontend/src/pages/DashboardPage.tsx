@@ -17,8 +17,8 @@ import {
   DialogActions,
   TextField,
   Tooltip,
-  Alert
 } from '@mui/material';
+import { Alert } from '@mui/material';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import MapIcon from '@mui/icons-material/Map';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -161,7 +161,7 @@ export const DashboardPage: React.FC = () => {
               Your adventure is waiting! Feed our AI your preferences and get a custom micro-optimized travel experience dynamically mapped instantly.
             </Typography>
             <Button
-              variant="contained"
+              variant="filled"
               size="large"
               onClick={() => navigate('/planner')}
               sx={{ fontWeight: 700 }}
@@ -254,7 +254,7 @@ export const DashboardPage: React.FC = () => {
                   {/* Actions Bar */}
                   <Box sx={{ px: 4, pb: 4, display: 'flex', gap: 1.5 }}>
                     <Button
-                      variant="contained"
+                      variant="filled"
                       fullWidth
                       startIcon={<MapIcon />}
                       onClick={() => navigate(`/map/${trip.id}`)}
@@ -344,7 +344,7 @@ export const DashboardPage: React.FC = () => {
             <Button 
               onClick={handleExecuteReplan} 
               disabled={replanning || !replanReason}
-              variant="contained"
+              variant="filled"
               startIcon={replanning ? <CircularProgress size={16} /> : <CloudSyncIcon />}
             >
               {replanning ? 'Re-Planning...' : 'Execute Re-Plan'}
