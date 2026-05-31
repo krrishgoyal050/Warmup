@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config';
 import { Trip, ItineraryDay, Activity, UserProfile, ChatMessage } from '../types';
 import { mapsService } from './mapsService';
@@ -9,9 +9,9 @@ import { v4 as uuidv4 } from 'uuid';
 let aiModel: any = null;
 try {
   if (!config.gemini.isMock) {
-    const ai = new GoogleGenAI({ apiKey: config.gemini.apiKey });
-    // Use gemini-2.5-pro or fallback to gemini-1.5-pro/gemini-2.5-flash as available
-    aiModel = ai.models.get('gemini-2.5-pro');
+    const ai = new GoogleGenerativeAI(config.gemini.apiKey);
+   aiModel = ai.getGenerativeModel({
+     model: 'gemini-1.5-pro'
     console.log('[GEMINI SERVICE] Connected to Gemini API successfully.');
   } else {
     console.log('[GEMINI SERVICE] Running in mock/simulation mode. Procedural AI generation active.');
@@ -338,7 +338,7 @@ export const geminiService = {
           category: 'transport',
           location: { lat: center.lat + 0.02, lng: center.lng + 0.02, address: `${params.destination} Airport Station`, placeId: 'mock_airport' },
           accessibilityFriendly: true,
-          weatherRecommendation: 'flexible',
+          weatherRecommendation: 'string',
           scoreContribution: 8,
         });
 
@@ -352,7 +352,7 @@ export const geminiService = {
           category: 'accommodation',
           location: { lat: center.lat, lng: center.lng, address: `${params.destination} Lodging Center`, placeId: 'mock_hotel' },
           accessibilityFriendly: true,
-          weatherRecommendation: 'indoor',
+          weatherRecommendation: 'string',
           scoreContribution: 10,
         });
       }
@@ -386,7 +386,7 @@ export const geminiService = {
         category: 'food',
         location: { lat: center.lat + 0.005 * day, lng: center.lng - 0.005 * day, address: `${params.destination} Bistro Street`, placeId: `mock_lunch_${day}` },
         accessibilityFriendly: true,
-        weatherRecommendation: 'indoor',
+        weatherRecommendation: 'string',
         scoreContribution: 9,
       });
 
@@ -401,7 +401,7 @@ export const geminiService = {
         category: dayPoints[1].cat as any,
         location: { lat: center.lat + 0.015 * day, lng: center.lng + 0.012 * day, address: dayPoints[1].address, placeId: `mock_pt_${day}_2` },
         accessibilityFriendly: true,
-        weatherRecommendation: 'outdoor',
+        weatherRecommendation: 'string',
         scoreContribution: 15,
       });
 
@@ -416,7 +416,7 @@ export const geminiService = {
         category: 'food',
         location: { lat: center.lat - 0.003 * day, lng: center.lng + 0.003 * day, address: `${params.destination} High Street Dining`, placeId: `mock_dinner_${day}` },
         accessibilityFriendly: true,
-        weatherRecommendation: 'indoor',
+        weatherRecommendation: 'string',
         scoreContribution: 11,
       });
 
@@ -480,7 +480,7 @@ export const geminiService = {
                 ...act,
                 name: 'National Fine Arts Gallery (Weather Safe)',
                 description: 'Enjoy a rich collection of visual oil paintings, historical sculptures, and modern interactive exhibits completely sheltered from the outdoor storm.',
-                weatherRecommendation: 'indoor',
+                weatherRecommendation: 'string',
                 cost: act.cost + 5,
               };
             }
