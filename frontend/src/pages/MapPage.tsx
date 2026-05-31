@@ -27,7 +27,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import PaidIcon from '@mui/icons-material/Paid';
+// PaidIcon removed – unused
 import apiClient from '../services/api';
 import { Trip, ItineraryDay, Activity } from '../types';
 import { useAccessibility } from '../context/AccessibilityContext';
@@ -104,7 +104,7 @@ export const MapPage: React.FC = () => {
 
   const activeDay: ItineraryDay = trip.itinerary[activeDayIdx] || trip.itinerary[0];
   const budget = trip.budgetBreakdown;
-  const totalAlloc = budget.accommodation + budget.food + budget.transport + budget.activities;
+  const _totalAlloc = budget.accommodation + budget.food + budget.transport + budget.activities;
 
   // Colors for Custom Donut Chart
   const colors = ['#6366f1', '#14b8a6', '#f59e0b', '#3b82f6'];
@@ -192,7 +192,7 @@ export const MapPage: React.FC = () => {
                     label={`Day ${day.dayNumber} (${day.date.split('-').slice(1).join('/')})`}
                     onClick={() => handleDaySelect(idx)}
                     color={activeDayIdx === idx ? 'primary' : 'default'}
-                    variant={activeDayIdx === idx ? 'contained' : 'outlined'}
+                    variant={activeDayIdx === idx ? 'filled' : 'outlined'}
                     sx={{ 
                       borderRadius: '10px',
                       py: 2,

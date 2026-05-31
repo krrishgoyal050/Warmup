@@ -20,7 +20,7 @@ import {
   Fade
 } from '@mui/material';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
-import SendIcon from '@mui/icons-material/Send';
+// SendIcon removed – unused
 import InfoIcon from '@mui/icons-material/Info';
 import apiClient from '../services/api';
 import { useAccessibility } from '../context/AccessibilityContext';
@@ -257,7 +257,7 @@ export const PlannerPage: React.FC = () => {
               </Typography>
               <Slider
                 value={budget}
-                onChange={(e, val) => setBudget(val as number)}
+                onChange={(_e, val) => setBudget(val as number)}
                 min={200}
                 max={15000}
                 step={100}
@@ -292,7 +292,7 @@ export const PlannerPage: React.FC = () => {
                       key={interest}
                       label={interest}
                       onClick={() => handleInterestToggle(interest)}
-                      variant={isSelected ? 'contained' : 'outlined'}
+                      variant={isSelected ? 'filled' : 'outlined'}
                       color={isSelected ? 'primary' : 'default'}
                       sx={{ 
                         borderRadius: '8px', 
