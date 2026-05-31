@@ -11,7 +11,7 @@ try {
   if (!config.gemini.isMock) {
     const ai = new GoogleGenerativeAI(config.gemini.apiKey);
    aiModel = ai.getGenerativeModel({
-     model: 'gemini-1.5-pro'
+     model: 'gemini-1.5-pro',
     console.log('[GEMINI SERVICE] Connected to Gemini API successfully.');
   } else {
     console.log('[GEMINI SERVICE] Running in mock/simulation mode. Procedural AI generation active.');
