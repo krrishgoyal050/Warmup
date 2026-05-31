@@ -1,10 +1,16 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
 import { config } from './config';
 import apiRouter from './routes';
 import { errorHandler } from './middleware/errorMiddleware';
+import { securityHeaders } from './middleware/security';
 
 const app = express();
+
+// Apply OWASP secure HTTP headers globally
+app.use(securityHeaders);
 
 // Configure CORS to support local frontend and Google Cloud Run links
 app.use(cors({
@@ -15,18 +21,29 @@ app.use(cors({
 
 app.use(express.json());
 
-// Main entry welcome route
-app.get('/', (req, res) => {
-  res.json({
-    status: 'online',
-    service: 'Travel Planning & Experience Engine API',
-    version: '1.0.0',
-    mockModeActive: config.gemini.isMock,
-  });
-});
-
 // Mount operational routes
 app.use('/api', apiRouter);
+
+// Serve compiled static frontend assets in production environment
+const frontendDistPath = path.join(__dirname, '../public');
+if (fs.existsSync(frontendDistPath)) {
+  console.log(`[PRODUCTION SERVER] Serving static frontend files from: ${frontendDistPath}`);
+  app.use(express.static(frontendDistPath));
+  // Support React Router single page application client routes
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+} else {
+  // Fallback welcome message in local api developer mode
+  app.get('/', (req, res) => {
+    res.json({
+      status: 'online',
+      service: 'Travel Planning & Experience Engine API',
+      version: '1.0.0',
+      mockModeActive: config.gemini.isMock,
+    });
+  });
+}
 
 // Bind centralized error handler middleware
 app.use(errorHandler);

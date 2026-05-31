@@ -19,6 +19,10 @@ export interface RouteSegment {
   polyline: string;
 }
 
+// In-Memory Caching Store for high-efficiency sub-millisecond lookups
+const routeCache = new Map<string, RouteSegment>();
+const placeCache = new Map<string, LocationDetail[]>();
+
 // Procedural mock coordinates for different destinations to populate stunning maps
 const DESTINATION_MOCK_COORDS: Record<string, { lat: number; lng: number; places: LocationDetail[] }> = {
   paris: {
@@ -63,12 +67,17 @@ const DESTINATION_MOCK_COORDS: Record<string, { lat: number; lng: number; places
 export const mapsService = {
   // --- PLACES API ---
   async searchPlaces(query: string, category: string): Promise<LocationDetail[]> {
+    const cacheKey = `${query.toLowerCase().trim()}_${category.toLowerCase()}`;
+    if (placeCache.has(cacheKey)) {
+      console.log(`[MAPS CACHE] Cache Hit for place search: "${cacheKey}"`);
+      return placeCache.get(cacheKey) || [];
+    }
+
     if (config.googleMaps.isMock) {
       console.log(`[MAPS SERVICE MOCK] Searching places for "${query}" (category: ${category})`);
       const queryLower = query.toLowerCase();
       
-      // Try to find a match among our pre-seeded locations
-      let selectedKey = 'paris'; // fallback default
+      let selectedKey = 'paris'; 
       for (const key of Object.keys(DESTINATION_MOCK_COORDS)) {
         if (queryLower.includes(key)) {
           selectedKey = key;
@@ -77,7 +86,6 @@ export const mapsService = {
       }
 
       const dest = DESTINATION_MOCK_COORDS[selectedKey];
-      // Filter or customize spots based on category
       let filtered = dest.places;
       if (category === 'hotel') {
         filtered = dest.places.filter(p => p.name.toLowerCase().includes('hotel') || p.name.toLowerCase().includes('plaza') || p.name.toLowerCase().includes('hyatt'));
@@ -87,25 +95,24 @@ export const mapsService = {
         filtered = dest.places.filter(p => !p.name.toLowerCase().includes('hotel') && !p.name.toLowerCase().includes('restaurant') && !p.name.toLowerCase().includes('verne') && !p.name.toLowerCase().includes('ramen'));
       }
 
-      // If category filtering returned nothing, send all places
       if (filtered.length === 0) {
         filtered = dest.places;
       }
 
+      placeCache.set(cacheKey, filtered);
       return filtered;
     }
 
     try {
-      // Live Google Places API Search
       const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query + ' ' + category)}&key=${config.googleMaps.apiKey}`;
       const response = await fetch(url);
-      const data: any = await response.json();
+      const data = (await response.json()) as { results?: Array<{ name: string; formatted_address: string; geometry: { location: { lat: number; lng: number } }; place_id: string; rating?: number; price_level?: number }> };
       
       if (!data.results) {
         return [];
       }
 
-      return data.results.slice(0, 8).map((p: any) => ({
+      const mappedResults = data.results.slice(0, 8).map((p) => ({
         name: p.name,
         address: p.formatted_address,
         lat: p.geometry.location.lat,
@@ -114,6 +121,9 @@ export const mapsService = {
         rating: p.rating,
         priceLevel: p.price_level,
       }));
+
+      placeCache.set(cacheKey, mappedResults);
+      return mappedResults;
     } catch (error) {
       console.error('[MAPS SERVICE ERROR] Places TextSearch API failed:', error);
       return [];
@@ -126,23 +136,26 @@ export const mapsService = {
     destination: { lat: number; lng: number },
     mode: 'walking' | 'driving' | 'transit' = 'driving'
   ): Promise<RouteSegment> {
+    const cacheKey = `${origin.lat},${origin.lng}_${destination.lat},${destination.lng}_${mode}`;
+    if (routeCache.has(cacheKey)) {
+      console.log(`[MAPS CACHE] Cache Hit for directions: "${cacheKey}"`);
+      return routeCache.get(cacheKey) as RouteSegment;
+    }
+
     if (config.googleMaps.isMock) {
-      // Calculate realistic Euclidean distance and times
-      const dx = (destination.lat - origin.lat) * 111; // 1 deg lat is ~111km
+      const dx = (destination.lat - origin.lat) * 111; 
       const dy = (destination.lng - origin.lng) * 111 * Math.cos(origin.lat * Math.PI / 180);
       const distanceKm = Math.sqrt(dx * dx + dy * dy);
       const distanceMeters = Math.round(distanceKm * 1000);
 
-      let speedKmh = 40; // driving average
+      let speedKmh = 40; 
       if (mode === 'walking') speedKmh = 5;
       else if (mode === 'transit') speedKmh = 25;
 
       const durationSeconds = Math.round((distanceKm / speedKmh) * 3600);
-      
-      // Simple mock polyline for paths
       const polyline = `_p~iF~ps|U_s@~s@_s@_s@`; 
 
-      return {
+      const result = {
         distanceText: `${distanceKm.toFixed(1)} km`,
         distanceValue: distanceMeters,
         durationText: durationSeconds > 3600 
@@ -151,12 +164,15 @@ export const mapsService = {
         durationValue: durationSeconds,
         polyline,
       };
+
+      routeCache.set(cacheKey, result);
+      return result;
     }
 
     try {
       const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}&mode=${mode}&key=${config.googleMaps.apiKey}`;
       const response = await fetch(url);
-      const data: any = await response.json();
+      const data = (await response.json()) as { status: string; routes?: Array<{ legs: Array<{ distance: { text: string; value: number }; duration: { text: string; value: number } }>; overview_polyline: { points: string } }> };
 
       if (data.status !== 'OK' || !data.routes || data.routes.length === 0) {
         throw new Error(`Directions failed: ${data.status || 'No routes'}`);
@@ -165,16 +181,18 @@ export const mapsService = {
       const route = data.routes[0];
       const leg = route.legs[0];
 
-      return {
+      const result = {
         distanceText: leg.distance.text,
         distanceValue: leg.distance.value,
         durationText: leg.duration.text,
         durationValue: leg.duration.value,
         polyline: route.overview_polyline.points,
       };
+
+      routeCache.set(cacheKey, result);
+      return result;
     } catch (error) {
       console.error('[MAPS SERVICE ERROR] Directions API failed:', error);
-      // Fallback
       return {
         distanceText: '1.2 km',
         distanceValue: 1200,
@@ -211,22 +229,22 @@ export const mapsService = {
       const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${originsStr}&destinations=${destsStr}&mode=${mode}&key=${config.googleMaps.apiKey}`;
       
       const response = await fetch(url);
-      const data: any = await response.json();
+      const data = (await response.json()) as { status: string; rows?: Array<{ elements: Array<{ status: string; distance: { value: number }; duration: { value: number } }> }> };
 
       if (data.status !== 'OK' || !data.rows) {
         throw new Error(`Distance Matrix failed: ${data.status}`);
       }
 
       const results: Array<{ distanceValue: number; durationValue: number }> = [];
-      data.rows.forEach((row: any) => {
-        row.elements.forEach((elem: any) => {
+      data.rows.forEach((row) => {
+        row.elements.forEach((elem) => {
           if (elem.status === 'OK') {
             results.push({
               distanceValue: elem.distance.value,
               durationValue: elem.duration.value,
             });
           } else {
-            results.push({ distanceValue: 1000, durationValue: 600 }); // fallback
+            results.push({ distanceValue: 1000, durationValue: 600 }); 
           }
         });
       });
@@ -238,13 +256,11 @@ export const mapsService = {
     }
   },
   
-  // Helper to obtain default coords of a city if Place API isn't used
   getCityCenterCoords(cityName: string): { lat: number; lng: number } {
     const key = cityName.toLowerCase().replace(/[^a-z]/g, '');
     if (DESTINATION_MOCK_COORDS[key]) {
       return { lat: DESTINATION_MOCK_COORDS[key].lat, lng: DESTINATION_MOCK_COORDS[key].lng };
     }
-    // Default default: Paris
     return { lat: 48.8566, lng: 2.3522 };
   }
 };

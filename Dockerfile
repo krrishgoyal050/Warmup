@@ -1,29 +1,40 @@
-# Stage 1: Build the Vite frontend application
-FROM node:18-slim AS build-frontend
-WORKDIR /app/frontend
-
+# Stage 1: Build React Frontend
+FROM node:20-alpine AS frontend-builder
+WORKDIR /usr/src/app/frontend
 COPY frontend/package*.json ./
-RUN npm install
-
+RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# Stage 2: Create the final server containing both frontend and backend
-FROM node:18-slim
-WORKDIR /app
-
-# Ensure we have the backend package.json
+# Stage 2: Build Node.js Backend
+FROM node:20-alpine AS backend-builder
+WORKDIR /usr/src/app/backend
 COPY backend/package*.json ./
-# npm > v8 supports --omit=dev, removing --only=production to avoid errors
-RUN npm install --omit=dev
-
+RUN npm ci
 COPY backend/ ./
+RUN npm run build
+RUN npm prune --production
 
-# Copy built frontend assets from the previous stage into the 'public' directory
-COPY --from=build-frontend /app/frontend/dist /app/public
+# Stage 3: Production Run Container
+FROM node:20-alpine
+WORKDIR /usr/src/app
 
-# Cloud Run defaults to assigning the container PORT 8080.
-EXPOSE 8080
+ENV NODE_ENV=production
 ENV PORT=8080
 
-CMD ["node", "server.js"]
+# Copy Backend production assets
+COPY --from=backend-builder /usr/src/app/backend/package*.json ./
+COPY --from=backend-builder /usr/src/app/backend/node_modules ./node_modules
+COPY --from=backend-builder /usr/src/app/backend/dist ./dist
+
+# Copy Frontend compiled assets into a 'public' directory in the backend environment
+COPY --from=frontend-builder /usr/src/app/frontend/dist ./public
+
+# Setup secure non-root deployment user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN chown -R appuser:appgroup /usr/src/app
+USER appuser
+
+EXPOSE 8080
+
+CMD ["node", "dist/index.js"]

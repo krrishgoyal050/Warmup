@@ -22,7 +22,6 @@ import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import ChatIcon from '@mui/icons-material/Chat';
 import { useAuth } from '../context/AuthContext';
 import { useAccessibility } from '../context/AccessibilityContext';
 

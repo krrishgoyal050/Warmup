@@ -291,7 +291,21 @@ export const geminiService = {
   },
 
   // --- MOCK AND GENERATIVE FALLBACK ALGORITHMS ---
-  generateMockTrip(params: any, durationDays: number): Trip {
+  generateMockTrip(
+    params: {
+      userId: string;
+      source: string;
+      destination: string;
+      startDate: string;
+      endDate: string;
+      totalBudget: number;
+      travelStyle: 'budget' | 'balanced' | 'luxury' | 'adventure';
+      numTravelers: number;
+      interests: string[];
+      accessibilityRequired: boolean;
+    },
+    durationDays: number
+  ): Trip {
     const key = params.destination.toLowerCase().replace(/[^a-z]/g, '');
     const center = mapsService.getCityCenterCoords(params.destination);
     

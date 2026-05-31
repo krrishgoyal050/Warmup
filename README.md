@@ -131,22 +131,28 @@ npx playwright test
 
 ---
 
-## Google Cloud Run Deployment Guide
+## Google Cloud Run Unified Single-Container Deployment Guide
 
-### 1. Containerize and Push backend container
+To deploy the entire full-stack application (both Frontend and Backend together in a single service container) to Google Cloud Run:
+
+### 1. Build and Push the Unified Container via Cloud Build
+Run this from the project root directory:
 ```bash
-gcloud builds submit --tag gcr.io/your-project-id/travel-planner-backend ./backend
+gcloud builds submit --tag gcr.io/your-project-id/traveler-ai-app .
 ```
 
-### 2. Deploy to Cloud Run
+### 2. Deploy the Container to Cloud Run
+Deploy the single image:
 ```bash
-gcloud run deploy travel-planner-backend \
-  --image gcr.io/your-project-id/travel-planner-backend:latest \
+gcloud run deploy traveler-ai-app \
+  --image gcr.io/your-project-id/traveler-ai-app:latest \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
-  --set-env-vars="NODE_ENV=production,GEMINI_API_KEY=secure-key"
+  --set-env-vars="NODE_ENV=production,GEMINI_API_KEY=your-gemini-key,GOOGLE_MAPS_API_KEY=your-google-maps-key"
 ```
+
+This single container will boot the Express backend on port `8080` and serve both your React client application files and REST endpoints natively, ensuring a zero-CORS production experience out-of-the-box.
 
 ---
 

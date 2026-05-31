@@ -5,7 +5,6 @@ import {
   Container, 
   Typography, 
   Card, 
-  CardContent, 
   TextField, 
   Button, 
   Chip, 
@@ -13,12 +12,10 @@ import {
   Avatar,
   Paper,
   Divider,
-  IconButton,
-  Tooltip
+  IconButton
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SendIcon from '@mui/icons-material/Send';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import MapIcon from '@mui/icons-material/Map';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
