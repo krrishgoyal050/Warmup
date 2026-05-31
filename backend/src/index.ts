@@ -3,7 +3,6 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { config } from './config';
-import apiRouter from './routes';
 import { errorHandler } from './middleware/errorMiddleware';
 import { securityHeaders } from './middleware/security';
 
