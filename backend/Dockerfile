@@ -9,7 +9,7 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src/ ./src
 
-RUN npm run build
+RUN npx tsc --pretty false
 RUN npm prune --production
 
 # Stage 2: Production Run
